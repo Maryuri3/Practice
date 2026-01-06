@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Store Inventory Cloud</title>
+    <style>
+        /* Estilos para imitar el look de Java Swing */
+        body { font-family: 'Tahoma', sans-serif; background-color: #DFE3EE; padding: 20px; }
+        .main-container { 
+            background: #F0F0F0; 
+            padding: 20px; 
+            border: 2px solid #A0A0A0; 
+            width: 700px; 
+            margin: auto; 
+        }
+        h1 { color: black; text-align: center; font-size: 18px; font-weight: bold; text-transform: uppercase; }
+        
+        .form-group { margin-bottom: 10px; }
+        label { display: inline-block; width: 120px; font-weight: bold; font-size: 12px; }
+        
+        /* Quitamos las flechas de los campos de número para que parezcan JTextField de Java */
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { 
+            -webkit-appearance: none; margin: 0; 
+        }
+        input { padding: 3px; border: 1px solid #7A7A7A; width: 150px; }
+
+        .button-panel { text-align: center; margin: 20px 0; }
+        button { 
+            background-color: #99FF99; /* Color verde de tus botones en Java */
+            border: 1px solid #707070; 
+            padding: 5px 15px; 
+            margin: 5px; 
+            font-weight: bold;
+            cursor: pointer; 
+        }
+        button:hover { background-color: #77EE77; }
+
+        table { width: 100%; border-collapse: collapse; background: white; border: 1px solid #A0A0A0; }
+        th { background-color: #E0E0E0; border: 1px solid #A0A0A0; padding: 5px; font-size: 12px; }
+        td { border: 1px solid #D0D0D0; padding: 5px; text-align: center; font-size: 12px; }
+
+        .total-label { margin-top: 20px; font-weight: bold; font-size: 14px; color: black; }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <h1>INVENTORY CONTROL AND FINANCIAL ANALYSIS</h1>
+        
+        <div class="form-group">
+            <label>PRODUCT:</label>
+            <input type="text" id="name">
+        </div>
+        <div class="form-group">
+            <label>BASE PRICE:</label>
+            <input type="number" id="basePrice" min="0" step="0.01">
+        </div>
+        <div class="form-group">
+            <label>STOCK UNITS:</label>
+            <input type="number" id="stock" min="0">
+        </div>
+
+        <div class="button-panel">
+            <button onclick="saveProduct()">Save Product</button>
+            <button onclick="deleteProduct()">Delete Product</button>
+            <button onclick="updateProduct()">Update Stock</button>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Product Name</th>
+                    <th>Stock Units</th>
+                    <th>Sales Price (Tax Incl.)</th>
+                </tr>
+            </thead>
+            <tbody id="inventoryTable"></tbody>
+        </table>
+
+        <div id="totalValue" class="total-label">TOTAL WAREHOUSE VALUE: $0.00</div>
+    </div>
+
+    <script>
+        // Carga inicial de datos
+        async function loadInventory() {
+            const response = await fetch('/api/products');
+            const data = await response.json();
+            const table = document.getElementById('inventoryTable');
+            table.innerHTML = "";
+            
+            data.products.forEach(p => {
+                const row = document.createElement('tr');
+                // Al hacer clic en la fila, cargamos los datos en los inputs (como en Java)
+                row.onclick = () => {
+                    document.getElementById('name').value = p.name;
+                    document.getElementById('stock').value = p.stock;
+                };
+                row.innerHTML = `
+                    <td>${p.name}</td>
+                    <td>${p.stock}</td>
+                    <td>$${p.salesPrice.toFixed(2)}</td>
+                `;
+                table.appendChild(row);
+            });
+            document.getElementById('totalValue').innerText = `TOTAL WAREHOUSE VALUE: $${data.totalValue.toFixed(2)}`;
+        }
+
+        // Validación de negocio (Igual que en Java btnSaveActionPerformed)
+        async function saveProduct() {
+            const name = document.getElementById('name').value.trim();
+            const basePrice = parseFloat(document.getElementById('basePrice').value);
+            const stock = parseInt(document.getElementById('stock').value);
+
+            // Bloqueo de valores negativos o vacíos
+            if (!name || basePrice <= 0 || stock < 0) {
+                alert("Error: Name cannot be empty, price must be > 0, and stock cannot be negative.");
+                return;
+            }
+
+            await fetch('/api/products', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ name, basePrice, stock })
+            });
+            clearAndReload();
+        }
+
+        async function deleteProduct() {
+            const name = document.getElementById('name').value.trim();
+            if (!name) return alert("Select a product first");
+            
+            if (confirm(`Are you sure you want to delete '${name}'?`)) {
+                await fetch(`/api/products/${name}`, { method: 'DELETE' });
+                clearAndReload();
+            }
+        }
+
+        async function updateProduct() {
+            const name = document.getElementById('name').value.trim();
+            const stock = parseInt(document.getElementById('stock').value);
+
+            if (stock < 0) return alert("Stock cannot be negative");
+
+            await fetch('/api/products', {
+                method: 'PUT',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ name, stock })
+            });
+            clearAndReload();
+        }
+
+        function clearAndReload() {
+            document.getElementById('name').value = "";
+            document.getElementById('basePrice').value = "";
+            document.getElementById('stock').value = "";
+            loadInventory();
+        }
+
+        window.onload = loadInventory;
+    </script>
+</body>
+</html>
