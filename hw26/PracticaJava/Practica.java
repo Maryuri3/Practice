@@ -168,3 +168,49 @@ private void refreshTable() {
     model.addColumn("Sales Price (Tax)");
     // ...
 }
+
+//Este evento captura el nombre, consulta al controlador y llena los campos automáticamente si el producto existe.
+private void btnSearchActionPerformed(java.awt.event.ActionEvent evt) {                                          
+    // 1. Obtener y validar el nombre ingresado
+    String nameToSearch = txtProduct.getText().trim();
+    
+    if (nameToSearch.isEmpty()) {
+        JOptionPane.showMessageDialog(this, "Please enter a product name to search.");
+        return;
+    }
+
+    // 2. Llamar al controlador (Lógica modular)
+    InventoryController controller = new InventoryController();
+    Product foundProduct = controller.findByName(nameToSearch);
+
+    // 3. Procesar el resultado
+    if (foundProduct != null) {
+        // Cargar los datos encontrados en los campos de texto
+        txtPrice.setText(String.valueOf(foundProduct.getBasePrice()));
+        
+        // Mensaje de éxito
+        JOptionPane.showMessageDialog(this, "Product '" + nameToSearch + "' found!");
+    } else {
+        // Mensaje si no existe en MongoDB Atlas
+        JOptionPane.showMessageDialog(this, "Product not found in the inventory.");
+        clearFields();
+    }
+}
+
+//controller
+public Product findByName(String name) {
+    // Busca el primer documento que coincida con el nombre
+    Document doc = collection.find(Filters.eq("name", name)).first();
+    
+    if (doc != null) {
+        // Mapeo modular de Documento a Objeto Java
+        return new Product(
+            doc.getString("name"),
+            doc.getDouble("basePrice"),
+            0 // El stock ya no se usa, pero se mantiene el constructor por compatibilidad
+        );
+    }
+    return null; // Retorna nulo si no hay coincidencias
+}
+
+//
