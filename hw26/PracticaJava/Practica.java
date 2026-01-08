@@ -35,11 +35,9 @@ public class InventoryController {
     private final MongoCollection<Document> collection;
 
     public InventoryController() {
-        // Modularidad: La conexión se obtiene de una clase externa especializada
-        this.collection = MongoDBConnection.getDatabase().getCollection("Inventory");
+        this.collection = MongoDBConnection.getDatabase().getCollection("Customers");
     }
 
-    // Reutilizable: Recibe un objeto, no datos sueltos
     public void addProduct(Product product) {
         Document doc = new Document("name", product.getName())
                 .append("basePrice", product.getBasePrice())
@@ -214,3 +212,37 @@ public Product findByName(String name) {
 }
 
 //
+private void refreshTable() {
+    try {
+        InventoryController controller = new InventoryController();
+        DefaultTableModel model = new DefaultTableModel();
+        
+        // Definir columnas según tu modelo Product (Clientes)
+        model.addColumn("ID");
+        model.addColumn("Nombre Completo");
+        model.addColumn("Email");
+        model.addColumn("Tipo");
+
+        // Obtener la lista de objetos Product
+        java.util.List<Product> products = controller.getInventoryList();
+
+        for (Product p : products) {
+            model.addRow(new Object[]{
+                p.getId(), 
+                p.getFullName(), 
+                p.getEmail(), 
+                p.getType()
+            });
+        }
+
+        jTable1.setModel(model);
+        
+        // Nota: Si son clientes, quizás no necesites "calculateTotalInventoryValue"
+        // Si lo necesitas, asegúrate que el método exista en el Controller
+        lblTotalValue.setText("Registros encontrados: " + products.size());
+
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, "Error al cargar datos: " + e.getMessage());
+        System.err.println("Error: " + e.getMessage());
+    }
+}
