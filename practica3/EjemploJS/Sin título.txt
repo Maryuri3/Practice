@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <title>Customer Management JS</title>
+    <style>
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f4f4f4; }
+    </style>
+</head>
+<body>
+
+    <h2>Customer List - JS OOP</h2>
+    <button onclick="loadTable()">Load Data</button>
+
+    <table id="customerTable">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Full Name</th>
+                <th>Amount</th>
+                <th>Total (Calculated)</th>
+            </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+    </table>
+
+    <script>
+        // --- MODELO (OOP) ---
+        class Customer {
+            constructor(id, fullName, amount) {
+                this.id = id;
+                this.fullName = fullName;
+                this.amount = amount;
+            }
+
+            // Cálculo reutilizable
+            calculateTotal() {
+                const tax = 0.15;
+                return this.amount * (1 + tax);
+            }
+        }
+
+        // --- CONTROLADOR ---
+        class CustomerController {
+            // Simula traer datos de una DB (como MongoDB)
+            static async fetchCustomers() {
+                // Aquí iría el fetch('api/customers')
+                const rawData = [
+                    { id: "101", fullName: "Maryuri Quiña", amount: 100.0 },
+                    { id: "102", fullName: "Juan Perez", amount: 200.0 }
+                ];
+
+                // Convertimos los datos planos en OBJETOS de la clase Customer
+                return rawData.map(d => new Customer(d.id, d.fullName, d.amount));
+            }
+        }
+
+        // --- VISTA (Función que el botón llama) ---
+        async function loadTable() {
+            const tbody = document.getElementById("tableBody");
+            tbody.innerHTML = ""; // Limpiar tabla
+
+            const customers = await CustomerController.fetchCustomers();
+
+            customers.forEach(c => {
+                const row = `<tr>
+                    <td>${c.id}</td>
+                    <td>${c.fullName}</td>
+                    <td>${c.amount}</td>
+                    <td>${c.calculateTotal().toFixed(2)}</td>
+                </tr>`;
+                tbody.innerHTML += row;
+            });
+        }
+    </script>
+</body>
+</html>
+
+
+
+Notas Importantes para ambos:
+Cálculo Modularizado: En ambos códigos, si el profesor te pide cambiar el cálculo, solo vas a la clase Customer (el Modelo) y cambias la fórmula dentro del método de cálculo.
+
+Botones Limpios: Tanto en Python (command=self.load_data) como en JS (onclick="loadTable()"), el botón no hace el trabajo pesado, solo activa el controlador.
+
+Modularidad: Los datos están encapsulados en objetos, lo que hace que el código sea profesional y fácil de entender.
+
+
+
+🌐 JavaScript (Node.js)
+Para correr JavaScript fuera del navegador (como un script de servidor) necesitas Node.js instalado en tu computadora.
+
+1. Librerías a descargar: Primero, inicializa el proyecto y luego descarga el driver de MongoDB:
+
+Bash
+
+npm init -y
+npm install mongodb
+2. Cómo correr el código:
+
+Asegúrate de que el archivo tenga la extensión .js (ej. script.js).
+
+En la terminal, escribe:
+
+Bash
+
+node script.js
+Nota para JS Web: Si estás usando el código HTML que te di anteriormente (el que tiene etiquetas <script>), no necesitas descargar librerías. Solo abre el archivo .html directamente en tu navegador (Chrome o Edge) o usa la extensión Live Server de VS Code.

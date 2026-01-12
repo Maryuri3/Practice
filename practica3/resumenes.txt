@@ -1,0 +1,103 @@
+JAVA
+Resumen para modificar el código si el ejercicio cambia:
+•	¿Cambia la base de datos? Ve a DatabaseConnection.java y cambia DATABASE_NAME.
+•	¿Cambia el nombre de la colección? Ve a CustomerController.java y cambia "customers" en la línea de getCollection.
+•	¿Piden un cálculo diferente? Ve a CustomerController.java y cambia la operación dentro de calculateTax.
+•	¿Hay más campos? Agrega más líneas doc.get... en el controlador y asegúrate de agregarlos al tableModel.addRow.
+
+PY
+Resumen para modificar el código en Python
+Si el ejercicio cambia, estos son los puntos clave:
+
+¿Cambia la Base de Datos o la Colección?
+Ve a la clase CustomerController.
+Cambia "company_db" por el nuevo nombre de la base de datos.
+Cambia "customers" por el nombre de la nueva colección.
+¿Cambian los nombres de los campos (ej. de 'fullName' a 'name')?
+En CustomerController, dentro del bucle for, cambia los nombres dentro de doc.get("campo_de_mongo").
+
+¿Cambia el cálculo (ej. de impuesto a descuento)?
+Ve a la clase Customer (el Modelo).
+Modifica la fórmula dentro del método calculate_total(). No toques la interfaz ni el controlador.
+
+¿Piden mostrar una columna extra?
+Agrega el atributo en el __init__ de la clase Customer.
+Agrégalo en CustomerController al crear el objeto.
+En la clase FrmCustomer, agrega la columna en el ttk.Treeview y en el insert.
+
+JS
+Resumen para modificar el código en JavaScript (Web)
+Si el ejercicio cambia en JS, sigue estos pasos:
+
+¿Cambian los datos que vienen del servidor (o el JSON)?
+Ve a la clase CustomerController.
+Modifica los nombres de las propiedades en el mapeo: d.id, d.fullName, etc.
+
+¿Cambia la lógica matemática?
+Ve a la clase Customer.
+Cambia el código dentro de calculateTotal(). Esto mantendrá la lógica separada de la visualización.
+
+¿Piden agregar más datos a la tabla?
+
+Modifica el constructor de la clase Customer para aceptar el nuevo dato.
+En el HTML, agrega un <th> nuevo en el <thead>.
+En la función loadTable, agrega una celda <td> extra en el string de la fila (row).
+
+¿Cambia el origen de los datos?
+
+Solo debes cambiar el contenido del método fetchCustomers() en el controlador para que apunte a una URL diferente.
+
+
+💡 Consejos "Salvavidas" para el examen
+Nombres de variables: Si cambias un nombre en el Modelo (ej. de amount a price), asegúrate de usar el nuevo nombre en el Controlador y en la Vista.
+
+Consola de errores:
+
+En Python: Mira la terminal donde corres el script; ahí te dirá la línea exacta del error.
+
+En JS: Presiona F12 en el navegador y ve a la pestaña Console. Si algo falla, ahí aparecerá en rojo.
+
+Tipos de datos: Si en MongoDB un número está como texto "100", recuerda convertirlo a número en el controlador antes de mandarlo al modelo (float(dato) en Python o Number(dato) en JS) para que los cálculos no fallen.
+
+
+
+
+
+🐍 Python
+Para Python, el "puente" oficial se llama pymongo.
+
+1. Librerías a descargar: Abre la terminal de VS Code (Ctrl + Ñ o Terminal > New Terminal) y escribe:
+
+Bash
+
+pip install pymongo
+2. Cómo correr el código:
+
+Asegúrate de que el archivo tenga la extensión .py (ej. app.py).
+
+En la terminal, escribe:
+
+Bash
+
+python app.py
+Tip: Si tienes varias versiones de Python, intenta con python3 app.py.
+
+🌐 JavaScript (Node.js)
+Para correr JavaScript fuera del navegador (como un script de servidor) necesitas Node.js instalado en tu computadora.
+
+1. Librerías a descargar: Primero, inicializa el proyecto y luego descarga el driver de MongoDB:
+
+Bash
+
+npm init -y
+npm install mongodb
+2. Cómo correr el código:
+
+Asegúrate de que el archivo tenga la extensión .js (ej. script.js).
+
+En la terminal, escribe:
+
+Bash
+
+node script.js
+Nota para JS Web: Si estás usando el código HTML que te di anteriormente (el que tiene etiquetas <script>), no necesitas descargar librerías. Solo abre el archivo .html directamente en tu navegador (Chrome o Edge) o usa la extensión Live Server de VS Code.

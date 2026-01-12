@@ -1,0 +1,110 @@
+Para añadir la función de búsqueda (Read/Search) manteniendo la estructura OOP y MVC, vamos a agregar un método de filtrado en el Controlador. La idea es que el botón de búsqueda solo envíe el texto al controlador y este devuelva el objeto encontrado.
+
+1. Java (NetBeans)
+En CustomerController.java: Añade este método para buscar un solo documento y convertirlo en objeto.
+
+Java
+
+// Método para buscar por ID o Nombre
+public Customer findCustomer(String searchTerm) {
+    MongoCollection<Document> collection = DatabaseConnection.getDatabase().getCollection("customers");
+    
+    // Buscamos un documento donde el 'id' sea igual al término (puedes cambiar a 'fullName')
+    Document doc = collection.find(new Document("id", searchTerm)).first();
+
+    if (doc != null) {
+        return new Customer(
+            doc.getString("id"),
+            doc.getString("fullName"),
+            doc.getDouble("amount")
+        );
+    }
+    return null; // Si no lo encuentra
+}
+En el botón "Buscar" de FrmCustomer.java:
+
+Java
+
+private void btnSearchActionPerformed(java.awt.event.ActionEvent evt) {
+    String idToSearch = txtSearchId.getText(); // El campo de texto de tu interfaz
+    CustomerController controller = new CustomerController();
+    Customer found = controller.findCustomer(idToSearch);
+
+    if (found != null) {
+        // Limpiar tabla y mostrar solo el encontrado
+        DefaultTableModel model = (DefaultTableModel) tblData.getModel();
+        model.setRowCount(0);
+        model.addRow(new Object[]{found.getId(), found.getFullName(), found.getAmount(), found.calculateTotal()});
+    } else {
+        javax.swing.JOptionPane.showMessageDialog(this, "No encontrado");
+    }
+}
+2. Python (Tkinter)
+En la clase CustomerController:
+
+Python
+
+    def search_customer(self, search_id):
+        # Buscamos en MongoDB por el campo 'id'
+        doc = self.collection.find_one({"id": search_id})
+        if doc:
+            return Customer(doc.get("id"), doc.get("fullName"), doc.get("amount", 0))
+        return None
+En la interfaz (FrmCustomer):
+
+Python
+
+    def search_data(self):
+        search_id = self.txt_search.get() # Campo de entrada
+        customer = self.controller.search_customer(search_id)
+        
+        # Limpiar y mostrar solo el resultado
+        for item in self.table.get_children():
+            self.table.delete(item)
+            
+        if customer:
+            self.table.insert("", "end", values=(customer.id, customer.full_name, customer.amount, customer.calculate_total()))
+3. JavaScript (Web)
+En la clase CustomerController:
+
+JavaScript
+
+        static async findByName(name, customersList) {
+            // Filtra la lista actual por nombre (ignorando mayúsculas)
+            return customersList.find(c => c.fullName.toLowerCase().includes(name.toLowerCase()));
+        }
+En la función de la Vista:
+
+JavaScript
+
+        async function searchCustomer() {
+            const nameToSearch = document.getElementById("inputSearch").value;
+            const allCustomers = await CustomerController.fetchCustomers(); // Trae todos
+            const found = await CustomerController.findByName(nameToSearch, allCustomers);
+
+            const tbody = document.getElementById("tableBody");
+            tbody.innerHTML = ""; // Limpiar tabla
+
+            if (found) {
+                tbody.innerHTML = `<tr>
+                    <td>${found.id}</td>
+                    <td>${found.fullName}</td>
+                    <td>${found.amount}</td>
+                    <td>${found.calculateTotal().toFixed(2)}</td>
+                </tr>`;
+            } else {
+                alert("Cliente no encontrado");
+            }
+        }
+📝 Resumen para modificar si el examen cambia:
+¿Quieren buscar por Nombre en lugar de ID?
+
+Java: Cambia new Document("id", searchTerm) por new Document("fullName", searchTerm).
+
+Python: Cambia {"id": search_id} por {"fullName": search_id}.
+
+JS: Cambia c.id por c.fullName dentro del find.
+
+¿Cómo agregar la parte del CRUD de "Crear" (Insert)?
+
+Simplemente crea un método en el controlador que reciba el objeto y haga un collection.insertOne(doc).
