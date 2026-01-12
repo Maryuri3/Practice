@@ -1,0 +1,88 @@
+import tkinter as tk
+from tkinter import ttk
+from pymongo import MongoClient
+
+# --- MODELO (OOP) ---
+class Customer:
+    def __init__(self, customer_id, full_name, amount):
+        self.id = customer_id
+        self.full_name = full_name
+        self.amount = amount
+
+    # Método de cálculo reutilizable
+    def calculate_total(self):
+        tax = 0.15  # Ejemplo: 15%
+        return self.amount + (self.amount * tax)
+
+# --- CONTROLADOR ---
+class CustomerController:
+    def __init__(self):
+        # Conexión a MongoDB (Asegúrate que coincida con tu base de datos)
+        self.client = MongoClient("mongodb://localhost:27017")
+        self.db = self.client["company_db"]
+        self.collection = self.db["customers"]
+
+    def get_all_customers(self):
+        customers_list = []
+        for doc in self.collection.find():
+            # Creamos el objeto Customer con los datos de Mongo
+            obj = Customer(doc.get("id"), doc.get("fullName"), doc.get("amount", 0))
+            customers_list.append(obj)
+        return customers_list
+
+# --- VISTA (INTERFAZ) ---
+class FrmCustomer:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Customer Management - Python OOP")
+        self.controller = CustomerController()
+
+        # Botón que SOLO llama a la función de carga
+        self.btn_load = tk.Button(root, text="Load Data", command=self.load_data)
+        self.btn_load.pack(pady=10)
+
+        # Tabla (Treeview)
+        self.table = ttk.Treeview(root, columns=("ID", "Name", "Amount", "Total"), show="headings")
+        self.table.heading("ID", text="ID")
+        self.table.heading("Name", text="Full Name")
+        self.table.heading("Amount", text="Amount")
+        self.table.heading("Total", text="Total (Tax)")
+        self.table.pack(padx=10, pady=10)
+
+    def load_data(self):
+        # Limpiar tabla
+        for item in self.table.get_children():
+            self.table.delete(item)
+        
+        # Obtener datos del controlador
+        customers = self.controller.get_all_customers()
+        
+        # Llenar la tabla usando los métodos del objeto
+        for c in customers:
+            self.table.insert("", "end", values=(c.id, c.full_name, c.amount, c.calculate_total()))
+
+# Iniciar aplicación
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = FrmCustomer(root)
+    root.mainloop()
+
+
+🐍 Python
+Para Python, el "puente" oficial se llama pymongo.
+
+1. Librerías a descargar: Abre la terminal de VS Code (Ctrl + Ñ o Terminal > New Terminal) y escribe:
+
+Bash
+
+pip install pymongo
+2. Cómo correr el código:
+
+Asegúrate de que el archivo tenga la extensión .py (ej. app.py).
+
+En la terminal, escribe:
+
+Bash
+
+python app.py
+Tip: Si tienes varias versiones de Python, intenta con python3 app.py.
